@@ -19,16 +19,20 @@ import { Badge } from "@/components/atoms/badge";
 import { Separator } from "@/components/atoms/separator";
 import FileUpload from "@/components/organisms/file-upload";
 import TimePicker from "@/components/organisms/time-picker";
+import GeoPicker from "@/components/organisms/geo-picker";
 import Topbar from "@/components/molecules/topbar";
 import Footer from "@/components/molecules/footer";
 // ICONS
-import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode } from "lucide-react";
+import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode, MapPin, MapPinCheck } from "lucide-react";
 // CONSTANTS
 import { DEVICE_TYPES } from "@/utils/constants";
 // SCHEMAS
 import { sharePDFFormSchema, type SharePDFData } from "@/schemas/share";
 // UTILS
 import { zodResolver } from "@hookform/resolvers/zod";
+// STYLES
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 const SharePage = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -41,6 +45,7 @@ const SharePage = () => {
       deviceType: "",
       expiryTime: new Date(),
       downloadLimit: 1,
+      geoLimit: null,
     },
   });
 
@@ -68,7 +73,6 @@ const SharePage = () => {
       <Topbar />
 
       <section className="relative z-10 mx-auto max-w-2xl px-6 py-12">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center space-x-2 rounded-full bg-blue-500/10 px-4 py-2 mb-6">
             <Shield className="h-4 w-4 text-blue-400" />
@@ -83,14 +87,13 @@ const SharePage = () => {
           </p>
         </div>
 
-        {/* Form Card */}
         <Card className="bg-slate-900/70 border-slate-700/50 backdrop-blur-sm shadow-2xl">
           <CardHeader className="space-y-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl text-slate-100">Share Settings</CardTitle>
               <Badge variant="secondary" className="bg-slate-700/50 text-slate-300">
                 <Zap className="h-3 w-3 mr-1" />
-                Pro Features
+                New Features
               </Badge>
             </div>
             <CardDescription className="text-slate-400">
@@ -101,7 +104,6 @@ const SharePage = () => {
           <CardContent className="space-y-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* File Upload */}
                 <FormField
                   control={form.control}
                   name="pdf"
@@ -125,7 +127,6 @@ const SharePage = () => {
 
                 <Separator className="bg-slate-700/50" />
 
-                {/* Recipient Email */}
                 <FormField
                   control={form.control}
                   name="recipientEmail"
@@ -217,7 +218,7 @@ const SharePage = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-slate-200 font-semibold flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-red-400" />
+                        <Clock className="size-4 mr-2 text-red-400" />
                         Expiry Time
                       </FormLabel>
                       <FormControl>
@@ -226,6 +227,25 @@ const SharePage = () => {
                             date={field.value}
                             setDate={field.onChange}
                           />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="geoLimit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-slate-200 font-semibold flex items-center">
+                        <MapPin className="size-4 mr-2 text-yellow-400" />
+                        Geographic Access Limit
+                      </FormLabel>
+                      <FormControl>
+                        <div className="bg-slate-800/50 border border-slate-600 rounded-md overflow-hidden">
+                          <GeoPicker onChange={field.onChange} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -261,9 +281,9 @@ const SharePage = () => {
         {/* Security Features */}
         <div className="pt-12 grid md:grid-cols-3 gap-6">
           {[
-            { icon: Shield, title: "End-to-End Encryption", desc: "Military-grade security" },
+            { icon: MapPinCheck, title: "Geographic Access", desc: "Limit access to specific locations" },
             { icon: Clock, title: "Auto Expiry", desc: "Time-based access control" },
-            { icon: Download, title: "Download Tracking", desc: "Monitor file access" },
+            { icon: Shield, title: "OTP Verification", desc: "OTP verification will be done for each download" },
           ].map((feature, index) => (
             <div key={index} className="text-center p-6 rounded-xl bg-slate-800/30 border border-slate-700/30">
               <feature.icon className="h-8 w-8 mx-auto mb-3 text-blue-400" />

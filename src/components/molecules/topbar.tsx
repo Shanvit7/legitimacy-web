@@ -1,5 +1,6 @@
 // COMPONENTS
 import { Button } from '@/components/atoms/button';
+import { Link } from '@tanstack/react-router';
 // ICONS
 import { ArrowRight, FileCheck, Sparkles } from 'lucide-react';
 
@@ -10,9 +11,11 @@ const Topbar = () => (
         <FileCheck className="size-6 text-white" />
       </div>
       <div>
+        <Link to="/" className="py-4">
         <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-2xl font-bold text-transparent">
-          Lyk
+          Lyk <span className="text-xs text-slate-200">(beta)</span>
         </span>
+        </Link>
         <div className="flex items-center space-x-1 text-xs text-slate-500">
           <Sparkles className="size-3" />
           <span>Secure • Fast • Simple</span>
@@ -29,9 +32,12 @@ const Topbar = () => (
       </Button>
       <Button
         size="sm"
-        className="bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:from-blue-400 hover:to-purple-500"
+        className="bg-gradient-to-r text-white from-blue-500 to-purple-600 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:from-blue-400 hover:to-purple-500"
+        asChild
       >
-        Start sharing <ArrowRight className="ml-1 h-4 w-4" />
+        <Link to="/share" className="flex items-center text-white">
+          Start sharing <ArrowRight className="ml-1 size-4" />
+        </Link>
       </Button>
     </div>
   </header>

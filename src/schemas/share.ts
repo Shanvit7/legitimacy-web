@@ -1,6 +1,7 @@
 import { z } from "zod";
 // CONSTANTS
 import { DEVICE_TYPES } from "@/utils/constants";
+import type { GeoJSONProps } from "react-leaflet";
 
 export const sharePDFFormSchema = z.object({
   pdf: z
@@ -17,6 +18,10 @@ export const sharePDFFormSchema = z.object({
     .refine((val) => val > 0 && val <= 5, {
       message: "Must be a number between 1-5",
     }),
+  geoLimit: z.custom<GeoJSONProps | null>()
+    .nullable()
+    .optional()
+    .describe("Geographic boundary for accessing the PDF"),
 });
 
 export type SharePDFData = z.infer<typeof sharePDFFormSchema>;
