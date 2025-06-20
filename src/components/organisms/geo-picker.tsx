@@ -1,6 +1,10 @@
+// COMPONENTS
 import { MapContainer, TileLayer, FeatureGroup, type GeoJSONProps } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
+// TYPES
 import type { LatLngTuple } from 'leaflet';
+// CONSTANTS
+import { MAP_URL } from "@/utils/constants";
 
 interface DrawCreatedEvent {
   layer: {
@@ -19,7 +23,7 @@ const GeoPicker = ({ onChange }: { onChange: (geojson: GeoJSONProps | null) => v
 
   return (
     <MapContainer center={center} zoom={5} style={{ height: 300 }}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+      <TileLayer url={MAP_URL}/>
       <FeatureGroup>
         <EditControl
           position="topright"

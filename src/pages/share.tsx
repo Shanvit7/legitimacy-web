@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
 import { Separator } from "@/components/atoms/separator";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/atoms/tooltip";
 import FileUpload from "@/components/organisms/file-upload";
 import TimePicker from "@/components/organisms/time-picker";
 import GeoPicker from "@/components/organisms/geo-picker";
@@ -43,7 +44,7 @@ const SharePage = () => {
       pdf: undefined,
       recipientEmail: "",
       deviceType: "",
-      expiryTime: new Date(),
+      expiryTime: undefined,
       downloadLimit: 1,
       geoLimit: null,
     },
@@ -132,9 +133,19 @@ const SharePage = () => {
                   name="recipientEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-200 text-lg font-semibold flex items-center">
-                        <Mail className="h-5 w-5 mr-2 text-green-400" />
-                        Recipient Details
+                      <FormLabel className="text-slate-200 font-semibold flex items-center">
+                        <Mail className="size-4 mr-2 text-green-400" />
+                        Recipient Email 
+                        <Tooltip>
+                          <TooltipTrigger className="p-0" asChild>
+                            <div className="ml-1.5 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-800/30 size-4">
+                              <span className="text-[10px] text-slate-400">?</span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>This email address will receive an OTP verification code when attempting to download the PDF</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -150,25 +161,24 @@ const SharePage = () => {
                 />
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* Device Type */}
                   <FormField
                     control={form.control}
                     name="deviceType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-slate-200 font-semibold flex items-center">
-                          <Monitor className="h-4 w-4 mr-2 text-purple-400" />
+                          <Monitor className="size-4 mr-2 text-purple-400" />
                           Device Access
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12">
-                              <SelectValue placeholder="Select device type" />
+                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
+                              <SelectValue className="capitalize" placeholder="Select device type" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent className="bg-slate-800 border-slate-600">
                             {DEVICE_TYPES.map((type) => (
-                              <SelectItem key={type} value={type} className="text-slate-100 focus:bg-slate-700">
+                              <SelectItem key={type} value={type} className="text-slate-100 focus:bg-slate-700 capitalize">
                                 {type}
                               </SelectItem>
                             ))}
@@ -190,7 +200,7 @@ const SharePage = () => {
                         </FormLabel>
                         <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}>
                           <FormControl>
-                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12">
+                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
                               <SelectValue placeholder="Select download limit" />
                             </SelectTrigger>
                           </FormControl>
