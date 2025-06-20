@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [
@@ -14,7 +15,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': '/src'
-    }
-  }
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 })

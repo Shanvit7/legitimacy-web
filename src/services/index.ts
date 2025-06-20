@@ -22,10 +22,7 @@ export class ApiService {
     this.baseUrl = url;
   }
 
-  async fetchData<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<FetchState<T>> {
+  async fetchData<T>(endpoint: string, options?: RequestInit): Promise<FetchState<T>> {
     const state: FetchState<T> = {
       data: null,
       isLoading: true,
@@ -82,8 +79,7 @@ export class ApiService {
 
   async post<T>(endpoint: string, body: unknown, options?: RequestInit) {
     // Determine if body should be sent as JSON or form data.
-    const isFormBody =
-      body instanceof FormData || body instanceof URLSearchParams;
+    const isFormBody = body instanceof FormData || body instanceof URLSearchParams;
     const headers = isFormBody
       ? { ...options?.headers }
       : { 'Content-Type': 'application/json', ...options?.headers };
