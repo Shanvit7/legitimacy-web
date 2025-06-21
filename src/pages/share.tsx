@@ -1,7 +1,6 @@
 "use client";
 // HOOKS
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 // COMPONENTS
 import {
   Form,
@@ -29,14 +28,18 @@ import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode, MapPin, MapPinChec
 import { DEVICE_TYPES } from "@/utils/constants";
 // SCHEMAS
 import { sharePDFFormSchema, type SharePDFData } from "@/schemas/share";
+// TYPES
+import type { UploadMetadata } from "@/types/upload";
 // UTILS
 import { zodResolver } from "@hookform/resolvers/zod";
+// HOOKS
+import useUploadPdf from "@/hooks/use-upload-pdf";
 // STYLES
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
 const SharePage = () => {
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { mutate: uploadPdf, isPending: isUploading = true } = useUploadPdf() ?? {};
 
   const form = useForm<SharePDFData>({
     resolver: zodResolver(sharePDFFormSchema),
@@ -44,22 +47,21 @@ const SharePage = () => {
       pdf: undefined,
       recipientEmail: "",
       deviceType: "",
-      expiryTime: undefined,
+      expiryTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
       downloadLimit: 1,
       geoLimit: null,
     },
   });
-
   const onSubmit = async (values: SharePDFData) => {
-    setIsSubmitting(true);
-    console.log("Sharing PDF:", values);
-    
-    // Mock upload with loading state
-    await new Promise((res) => setTimeout(res, 2000));
-    
-    alert("PDF shared successfully!");
-    form.reset();
-    setIsSubmitting(false);
+    const { pdf, ...metadata } = values ?? {};
+    uploadPdf({ 
+      pdf, 
+      metadata: {
+        ...metadata,
+        expiryTime: metadata.expiryTime.toISOString(),
+        geoLimit: metadata.geoLimit || {}
+      } as UploadMetadata 
+    });
   };
 
   return (
@@ -226,19 +228,16 @@ const SharePage = () => {
                   control={form.control}
                   name="expiryTime"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-200 font-semibold flex items-center">
-                        <Clock className="size-4 mr-2 text-red-400" />
-                        Expiry Time
-                      </FormLabel>
-                      <FormControl>
-                        <div className="bg-slate-800/50 border border-slate-600 rounded-md p-4">
-                          <TimePicker
-                            date={field.value}
-                            setDate={field.onChange}
-                          />
-                        </div>
-                      </FormControl>
+                    <FormItem className="space-y-0">
+                      <div className="flex items-center gap-4">
+                        <FormLabel className="text-slate-200 font-semibold flex items-center min-w-32">
+                          <Clock className="size-4 mr-2 text-red-400" />
+                          Expires In
+                        </FormLabel>
+                        <FormControl>
+                          <TimePicker setDate={field.onChange} />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -268,13 +267,13 @@ const SharePage = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isSubmitting}
+                  disabled={isUploading}
                   className="w-full h-14 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 hover:from-blue-600 hover:via-purple-600 hover:to-purple-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
                 >
-                  {isSubmitting ? (
+                  {isUploading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Sharing PDF...</span>
+                      <span>Securing PDF...</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
@@ -288,7 +287,6 @@ const SharePage = () => {
           </CardContent>
         </Card>
 
-        {/* Security Features */}
         <div className="pt-12 grid md:grid-cols-3 gap-6">
           {[
             { icon: MapPinCheck, title: "Geographic Access", desc: "Limit access to specific locations" },

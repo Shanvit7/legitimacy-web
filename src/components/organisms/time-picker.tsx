@@ -1,64 +1,36 @@
 "use client";
 // HOOKS
-import { useRef } from "react";
-// ICONS
-import { Clock } from "lucide-react";
+import { useState } from "react";
 // COMPONENTS
-import { Label } from "@/components/atoms/label";
-import { TimePickerInput } from "@/components/molecules/time-picker-input";
- 
-interface TimePickerDemoProps {
-  date: Date | undefined;
+import { Input } from "@/components/atoms/input";
+// UTILS
+import { calculateExpiryDate } from "@/utils/time-picker";
+
+interface TimePickerProps {
   setDate: (date: Date | undefined) => void;
-};
- 
-const TimePicker = ({ date, setDate }: TimePickerDemoProps) => {
-  const minuteRef = useRef<HTMLInputElement>(null);
-  const hourRef = useRef<HTMLInputElement>(null);
-  const secondRef = useRef<HTMLInputElement>(null);
- 
+}
+
+const TimePicker = ({ setDate }: TimePickerProps) => {
+  const [hours, setHours] = useState<number>(1);
+
+  const handleHoursChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.min(24, Math.max(0, parseInt(e.target.value) || 0));
+    setHours(value);
+    setDate(calculateExpiryDate(value));
+  };
+
   return (
-    <div className="flex items-end gap-2">
-      <div className="grid gap-1 text-center">
-        <Label htmlFor="hours" className="text-xs text-slate-100">
-          Hours
-        </Label>
-        <TimePickerInput
-          picker="hours"
-          date={date}
-          setDate={setDate}
-          ref={hourRef}
-          onRightFocus={() => minuteRef.current?.focus()}
-        />
-      </div>
-      <div className="grid gap-1 text-center">
-        <Label htmlFor="minutes" className="text-xs text-slate-100">
-          Minutes
-        </Label>
-        <TimePickerInput
-          picker="minutes"
-          date={date}
-          setDate={setDate}
-          ref={minuteRef}
-          onLeftFocus={() => hourRef.current?.focus()}
-          onRightFocus={() => secondRef.current?.focus()}
-        />
-      </div>
-      <div className="grid gap-1 text-center">
-        <Label htmlFor="seconds" className="text-xs text-slate-100">
-          Seconds
-        </Label>
-        <TimePickerInput
-          picker="seconds"
-          date={date}
-          setDate={setDate}
-          ref={secondRef}
-          onLeftFocus={() => minuteRef.current?.focus()}
-        />
-      </div>
-      <div className="flex h-10 items-center">
-        <Clock className="ml-2 h-4 w-4 text-slate-300" />
-      </div>
+    <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-600 rounded-md px-3 h-12">
+      <Input
+        id="hours"
+        type="number"
+        min={0}
+        max={24}
+        value={hours}
+        onChange={handleHoursChange}
+        className="w-[64px] text-center font-mono text-base tabular-nums text-slate-100 bg-transparent border-0 focus:border-0 focus:ring-0 p-0"
+      />
+      <span className="text-slate-300 text-sm">hours</span>
     </div>
   );
 };
