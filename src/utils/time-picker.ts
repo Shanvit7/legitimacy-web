@@ -1,5 +1,17 @@
+import { addHours } from 'date-fns';
 
-export type TimePickerType = "minutes" | "seconds" | "hours" | "12hours";
+// Validate input range
+export const isValidHours = (value: number) => value >= 0 && value <= 24;
+
+// Calculate expiry date from duration
+export const calculateExpiryDate = (hours: number) => {
+  if (!isValidHours(hours)) {
+    return new Date();
+  }
+  
+  return addHours(new Date(), hours);
+};
+
 export type Period = "AM" | "PM";
 
 // Regex validators
