@@ -7,11 +7,14 @@ import type { UploadMetadata } from '@/types/upload';
 // LOGGER
 import logger from '@/utils/logger';
 
-const useUploadPdf = () => {
+const useUploadPdf = <TResponse = unknown>() => {
   return useMutation({
-    mutationFn: ({ pdf, metadata }: { pdf: File, metadata: UploadMetadata }) => uploadPdf(pdf, metadata),
+    mutationFn: async ({ pdf, metadata }: { pdf: File, metadata: UploadMetadata }): Promise<TResponse> => {
+      const response = await uploadPdf(pdf, metadata);
+      return response as TResponse;
+    },
     onError: (error) => {
-      logger.error(error.message);
+      logger.error(error?.message ?? "Something went wrong while uploading the PDF.");
     },
   });
 };

@@ -14,7 +14,7 @@ const TimePicker = ({ setDate }: TimePickerProps) => {
   const [hours, setHours] = useState<number>(1);
 
   const handleHoursChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(24, Math.max(0, parseInt(e.target.value) || 0));
+    const value = Math.min(24, Math.max(1, parseInt(e.target.value) || 1));
     setHours(value);
     setDate(calculateExpiryDate(value));
   };
@@ -24,7 +24,7 @@ const TimePicker = ({ setDate }: TimePickerProps) => {
       <Input
         id="hours"
         type="number"
-        min={0}
+        min={1}
         max={24}
         value={hours}
         onChange={handleHoursChange}

@@ -22,6 +22,8 @@ import TimePicker from "@/components/organisms/time-picker";
 import GeoPicker from "@/components/organisms/geo-picker";
 import Topbar from "@/components/molecules/topbar";
 import Footer from "@/components/molecules/footer";
+import QRDisplay from "@/components/molecules/qr-display";
+import { toast } from "sonner";
 // ICONS
 import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode, MapPin, MapPinCheck } from "lucide-react";
 // CONSTANTS
@@ -29,7 +31,7 @@ import { DEVICE_TYPES } from "@/utils/constants";
 // SCHEMAS
 import { sharePDFFormSchema, type SharePDFData } from "@/schemas/share";
 // TYPES
-import type { UploadMetadata } from "@/types/upload";
+import type { UploadMetadata, UploadResponse } from "@/types/upload";
 // UTILS
 import { zodResolver } from "@hookform/resolvers/zod";
 // HOOKS
@@ -38,9 +40,14 @@ import useUploadPdf from "@/hooks/use-upload-pdf";
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 
-const SharePage = () => {
-  const { mutate: uploadPdf, isPending: isUploading = true } = useUploadPdf() ?? {};
 
+const SharePage = () => {
+  const {
+     mutate: uploadPdf, 
+     data: uploadData,
+     isSuccess = false,
+     isPending: isUploading = true,
+  } = useUploadPdf<UploadResponse>() ?? { data: undefined, mutate: () => {}, isPending: true, isSuccess: false };
   const form = useForm<SharePDFData>({
     resolver: zodResolver(sharePDFFormSchema),
     defaultValues: {
@@ -52,15 +59,21 @@ const SharePage = () => {
       geoLimit: null,
     },
   });
+  const { data: { qrUrl = '' } = {} } = uploadData ?? {};
   const onSubmit = async (values: SharePDFData) => {
     const { pdf, ...metadata } = values ?? {};
+    const { expiryTime, geoLimit = {}, ...rest } = metadata ?? {};
     uploadPdf({ 
       pdf, 
       metadata: {
-        ...metadata,
-        expiryTime: metadata.expiryTime.toISOString(),
-        geoLimit: metadata.geoLimit || {}
+        ...rest,
+        expiryTime: expiryTime.toISOString(),
+        geoLimit,
       } as UploadMetadata 
+    },{
+      onError: ({ message = "Something went wrong while uploading the PDF. Please try again later." }: { message: string }) => {
+        toast.error(message);
+      }
     });
   };
 
@@ -83,209 +96,218 @@ const SharePage = () => {
           </div>
           
           <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent mb-6">
-            Share your PDF
+            {isSuccess ? 'PDF Secured' : 'Share your PDF'}
           </h1>
           <p className="text-xl text-slate-400 max-w-lg mx-auto leading-relaxed">
-            Securely share your documents with advanced controls and real-time tracking
+            {isSuccess 
+              ? 'Your PDF has been secured and is ready to be shared'
+              : 'Securely share your documents with advanced controls, we got your back.'
+            }
           </p>
         </div>
 
-        <Card className="bg-slate-900/70 border-slate-700/50 backdrop-blur-sm shadow-2xl">
-          <CardHeader className="space-y-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl text-slate-100">Share Settings</CardTitle>
-              <Badge variant="secondary" className="bg-slate-700/50 text-slate-300">
-                <Zap className="h-3 w-3 mr-1" />
-                New Features
-              </Badge>
-            </div>
-            <CardDescription className="text-slate-400">
-              Configure sharing permissions and security settings for your PDF
-            </CardDescription>
-          </CardHeader>
+        {isSuccess && qrUrl ? (
+          <QRDisplay 
+            qrUrl={qrUrl ?? ""}
+          />
+        ) : (
+          <Card className="bg-slate-900/70 border-slate-700/50 backdrop-blur-sm shadow-2xl">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-2xl text-slate-100">Share Settings</CardTitle>
+                <Badge variant="secondary" className="bg-slate-700/50 text-slate-300">
+                  <Zap className="h-3 w-3 mr-1" />
+                  New Features
+                </Badge>
+              </div>
+              <CardDescription className="text-slate-400">
+                Configure sharing permissions and security settings for your PDF
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
-                  control={form.control}
-                  name="pdf"
-                  render={({ field: { onChange, value, ...field } }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-200 text-lg font-semibold flex items-center">
-                        <Monitor className="h-5 w-5 mr-2 text-blue-400" />
-                        Document Upload
-                      </FormLabel>
-                      <FormControl>
-                        <FileUpload
-                          onFileSelect={onChange}
-                          value={value}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Separator className="bg-slate-700/50" />
-
-                <FormField
-                  control={form.control}
-                  name="recipientEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-200 font-semibold flex items-center">
-                        <Mail className="size-4 mr-2 text-green-400" />
-                        Recipient Email 
-                        <Tooltip>
-                          <TooltipTrigger className="p-0" asChild>
-                            <div className="ml-1.5 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-800/30 size-4">
-                              <span className="text-[10px] text-slate-400">?</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>This email address will receive an OTP verification code when attempting to download the PDF</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="recipient@example.com"
-                          className="bg-slate-800/50 border-slate-600 text-slate-100 placeholder:text-slate-500 h-12 text-lg"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid md:grid-cols-2 gap-6">
+            <CardContent className="space-y-8">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   <FormField
                     control={form.control}
-                    name="deviceType"
-                    render={({ field }) => (
+                    name="pdf"
+                    render={({ field: { onChange, value, ...field } }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-200 font-semibold flex items-center">
-                          <Monitor className="size-4 mr-2 text-purple-400" />
-                          Device Access
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
-                              <SelectValue className="capitalize" placeholder="Select device type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-slate-800 border-slate-600">
-                            {DEVICE_TYPES.map((type) => (
-                              <SelectItem key={type} value={type} className="text-slate-100 focus:bg-slate-700 capitalize">
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="downloadLimit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-200 font-semibold flex items-center">
-                          <Download className="h-4 w-4 mr-2 text-orange-400" />
-                          Download Limit
-                        </FormLabel>
-                        <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}>
-                          <FormControl>
-                            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
-                              <SelectValue placeholder="Select download limit" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-slate-800 border-slate-600">
-                            {[1, 2, 3, 4, 5].map((limit) => (
-                              <SelectItem 
-                                key={limit} 
-                                value={String(limit)} 
-                                className="text-slate-100 focus:bg-slate-700"
-                              >
-                                {`${limit} ${limit === 1 ? 'download' : 'downloads'}`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="expiryTime"
-                  render={({ field }) => (
-                    <FormItem className="space-y-0">
-                      <div className="flex items-center gap-4">
-                        <FormLabel className="text-slate-200 font-semibold flex items-center min-w-32">
-                          <Clock className="size-4 mr-2 text-red-400" />
-                          Expires In
+                        <FormLabel className="text-slate-200 text-lg font-semibold flex items-center">
+                          <Monitor className="h-5 w-5 mr-2 text-blue-400" />
+                          PDF Upload
                         </FormLabel>
                         <FormControl>
-                          <TimePicker setDate={field.onChange} />
+                          <FileUpload
+                            onFileSelect={onChange}
+                            value={value}
+                            {...field}
+                          />
                         </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="geoLimit"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-200 font-semibold flex items-center">
-                        <MapPin className="size-4 mr-2 text-yellow-400" />
-                        Geographic Access Limit
-                      </FormLabel>
-                      <FormControl>
-                        <div className="bg-slate-800/50 border border-slate-600 rounded-md overflow-hidden">
-                          <GeoPicker onChange={field.onChange} />
+                  <Separator className="bg-slate-700/50" />
+
+                  <FormField
+                    control={form.control}
+                    name="recipientEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-slate-200 font-semibold flex items-center">
+                          <Mail className="size-4 mr-2 text-green-400" />
+                          Recipient Email 
+                          <Tooltip>
+                            <TooltipTrigger className="p-0" asChild>
+                              <div className="ml-1.5 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-800/30 size-4">
+                                <span className="text-[10px] text-slate-400">?</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>This email address will receive an OTP verification code when attempting to download the PDF</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="recipient@example.com"
+                            className="bg-slate-800/50 border-slate-600 text-slate-100 placeholder:text-slate-500 h-12 text-lg"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="deviceType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-200 font-semibold flex items-center">
+                            <Monitor className="size-4 mr-2 text-purple-400" />
+                            Device Access
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
+                                <SelectValue className="capitalize" placeholder="Select device type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              {DEVICE_TYPES.map((type) => (
+                                <SelectItem key={type} value={type} className="text-slate-100 focus:bg-slate-700 capitalize">
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="downloadLimit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-200 font-semibold flex items-center">
+                            <Download className="h-4 w-4 mr-2 text-orange-400" />
+                            Download Limit
+                          </FormLabel>
+                          <Select onValueChange={(val) => field.onChange(Number(val))} defaultValue={String(field.value)}>
+                            <FormControl>
+                              <SelectTrigger className="bg-slate-800/50 border-slate-600 text-slate-100 h-12 capitalize">
+                                <SelectValue placeholder="Select download limit" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-slate-800 border-slate-600">
+                              {[1, 2, 3, 4, 5].map((limit) => (
+                                <SelectItem 
+                                  key={limit} 
+                                  value={String(limit)} 
+                                  className="text-slate-100 focus:bg-slate-700"
+                                >
+                                  {`${limit} ${limit === 1 ? 'download' : 'downloads'}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="expiryTime"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <div className="flex items-center gap-4">
+                          <FormLabel className="text-slate-200 font-semibold flex items-center min-w-32">
+                            <Clock className="size-4 mr-2 text-red-400" />
+                            Expires In
+                          </FormLabel>
+                          <FormControl>
+                            <TimePicker setDate={field.onChange} />
+                          </FormControl>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <Separator className="bg-slate-700/50" />
+                  <FormField
+                    control={form.control}
+                    name="geoLimit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-slate-200 font-semibold flex items-center">
+                          <MapPin className="size-4 mr-2 text-yellow-400" />
+                          Geographic Access Limit
+                        </FormLabel>
+                        <FormControl>
+                          <div className="bg-slate-800/50 border border-slate-600 rounded-md overflow-hidden">
+                            <GeoPicker onChange={field.onChange} />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={isUploading}
-                  className="w-full h-14 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 hover:from-blue-600 hover:via-purple-600 hover:to-purple-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
-                >
-                  {isUploading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Securing PDF...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <QrCode className="size-5" />
-                      <span>Generate QR Code</span>
-                    </div>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                  <Separator className="bg-slate-700/50" />
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isUploading || isSuccess}
+                    className="w-full h-14 bg-gradient-to-r from-blue-500 via-purple-500 to-purple-600 hover:from-blue-600 hover:via-purple-600 hover:to-purple-700 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Securing PDF...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <QrCode className="size-5" />
+                        <span>Generate QR Code</span>
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="pt-12 grid md:grid-cols-3 gap-6">
           {[
