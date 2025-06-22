@@ -7,6 +7,8 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, File, X, CheckCircle } from 'lucide-react';
 // UTILS
 import { cn } from '@/lib/utils';
+// COMPONENTS
+import { Button } from '@/components/atoms/button';
 
 interface FileUploadProps {
   onFileSelect: (file: File | null) => void;
@@ -94,13 +96,13 @@ const FileUpload: FC<FileUploadProps> = ({ onFileSelect, value, className }) => 
             <CheckCircle className="h-5 w-5 text-green-400" />
           </div>
           
-          <button
-            type="button"
+          <Button
+            variant="destructive"
+            size="icon"
             onClick={removeFile}
-            className="ml-4 rounded-full p-1 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors"
           >
-            <X className="h-4 w-4" />
-          </button>
+            <X className="size-4 text-white" />
+          </Button>
         </div>
       )}
     </div>

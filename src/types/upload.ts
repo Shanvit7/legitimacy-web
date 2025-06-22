@@ -5,3 +5,12 @@ export interface UploadMetadata {
     expiryTime: string;
     geoLimit: object;
 };
+
+export interface UploadResponse {
+    success: boolean;
+    message: string;
+    data: {
+        pdfId: string;
+        qrUrl: string;
+    };
+};
