@@ -14,6 +14,9 @@ export const uploadPdf = async (pdf: File, metadata: UploadMetadata) => {
     formData.append('downloadLimit', metadata.downloadLimit.toString());
     formData.append('expiryTime', metadata.expiryTime);
     formData.append('geoLimit', JSON.stringify(metadata.geoLimit));
-    const { data = {} } = await pdfService.post('/upload', formData) ?? {};
+    const { data = {}, isError = false } = await pdfService.post('/upload', formData) ?? {};
+    if (isError) {
+        throw new Error('Failed to upload PDF');
+    };
     return data;
 };

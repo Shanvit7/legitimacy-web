@@ -10,9 +10,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from '@/lib/query-client';
 // COMPONENTS
 import { Toaster } from "@/components/atoms/sonner";
+import NotFoundPage from '@/pages/not-found';
 
 const router = createRouter({ 
-  routeTree
+  routeTree,
+  defaultNotFoundComponent: NotFoundPage,
 });
 
 // Register things for typesafety
