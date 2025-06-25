@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 // TYPES
 import type { SessionState } from '@/types/crypto';
 

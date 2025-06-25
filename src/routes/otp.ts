@@ -1,9 +1,8 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
 // PAGES
 import OtpPage from '@/pages/otp';
 // STORES
 import useSessionStore from '@/stores/session';
-
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/otp')({
   beforeLoad: async () => {
