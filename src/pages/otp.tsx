@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import useSessionStore from '@/stores/session';
 
 const OtpPage = () => {
-  const { key } = useSessionStore.getState() ?? {};
+  const { key, clearSession } = useSessionStore() ?? {};
   const { mutate: verifyOtp, isPending = true } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
@@ -26,7 +26,7 @@ const OtpPage = () => {
   const otp = watch('otp');
 
   const onSubmit = async ({ otp }: OtpFormSchema) => {
-    const publicChallenge = await sha256(key ?? '');
+    const publicChallenge = await sha256(key?.toString() ?? '');
     verifyOtp({ otp, publicChallenge }, {
         onSuccess: (data) => {
             const { downloadUrl } = data as { downloadUrl: string };
@@ -37,6 +37,7 @@ const OtpPage = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            clearSession();
         },
     });
   };
@@ -56,8 +57,9 @@ const OtpPage = () => {
             <div className="space-y-2">
               <h2 className="text-3xl font-bold text-white">Enter OTP</h2>
               <p className="max-w-sm text-slate-400 text-sm">
-                We&apos;ve sent a one-time passcode to your email. Enter the 4-digit code to continue.
+                We&apos;ve sent a one-time passcode to your email. Enter the 6-digit code to continue.
               </p>
+              <p className="text-slate-400 text-sm">Please don&apos;t <b>close or refresh this page</b></p>
             </div>
 
             <FormField
@@ -74,7 +76,7 @@ const OtpPage = () => {
                       className="gap-4"
                     >
                       <InputOTPGroup className="gap-4">
-                        {[0, 1, 2, 3].map((i) => (
+                        {[0, 1, 2, 3, 4, 5].map((i) => (
                           <InputOTPSlot
                             key={i}
                             index={i}
@@ -92,7 +94,7 @@ const OtpPage = () => {
             <Button
               size="lg"
               type="submit"
-              disabled={otp.length < 4 || isPending}
+              disabled={otp.length < 6 || isPending}
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-5 text-white font-semibold shadow-md shadow-purple-500/30 transition-all duration-300 hover:from-blue-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Verify OTP

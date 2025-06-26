@@ -12,7 +12,7 @@ import { generateSessionKey } from '@/utils/crypto';
 
 const VerificationStatus = ({ token }: { token: string }) => {
     const router = useRouter();
-    const setKey = useSessionStore((s) => s.setKey);
+    const { setKey, setShareId } = useSessionStore() ?? {};
     const { 
       mutate: verifyAccess, 
       isPending = true, 
@@ -21,13 +21,15 @@ const VerificationStatus = ({ token }: { token: string }) => {
 
     useEffect(() => {
         verifyAccess({ token },{
-          onSuccess: async () => {
+          onSuccess: async (data) => {
+            const { shareId } = data as { shareId: string };
+            setShareId(shareId);
             const key = await generateSessionKey() ?? null;
             setKey(key);
             router.navigate({ to: '/otp' });
           },
         });
-    }, [token, verifyAccess, router, setKey]);
+    }, [token, verifyAccess, router, setKey, setShareId]);
 
     if(isPending) {
         return (
