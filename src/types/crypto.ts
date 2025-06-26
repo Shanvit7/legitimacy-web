@@ -1,5 +1,7 @@
 export interface SessionState {
-  key: CryptoKey | null;
-  setKey: (key: CryptoKey) => void;
-  clearKey: () => void;
+  key: string | null;  // ESK
+  shareId: string | null;
+  setKey: (key: string) => void;
+  setShareId: (shareId: string) => void;
+  clearSession: () => void;
 }

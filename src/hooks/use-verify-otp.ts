@@ -3,11 +3,11 @@ import { useMutation } from '@tanstack/react-query';
 // SERVICES
 import { verifyOtp } from '@/services/verify';
 // SCHEMAS
-import type { OtpFormSchema } from '@/schemas/otp';
+import type { VerifyOtpRequest } from '@/types/verify';
 
 const useVerifyOtp = () => {
     return useMutation({
-        mutationFn: ({ otp }: OtpFormSchema) => verifyOtp({ otp }),
+        mutationFn: ({ otp, publicChallenge }: VerifyOtpRequest) => verifyOtp({ otp, publicChallenge }),
     });
 };
 

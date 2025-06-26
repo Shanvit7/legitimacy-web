@@ -8,9 +8,13 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '
 // SCHEMAS
 import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 // UTILS
+import { sha256 } from '@/utils/crypto';
 import { zodResolver } from '@hookform/resolvers/zod';
+// STORES
+import useSessionStore from '@/stores/session';
 
 const OtpPage = () => {
+  const { key } = useSessionStore.getState() ?? {};
   const { mutate: verifyOtp, isPending = true } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
@@ -21,8 +25,20 @@ const OtpPage = () => {
 
   const otp = watch('otp');
 
-  const onSubmit = ({ otp }: OtpFormSchema) => {
-    verifyOtp({ otp });
+  const onSubmit = async ({ otp }: OtpFormSchema) => {
+    const publicChallenge = await sha256(key ?? '');
+    verifyOtp({ otp, publicChallenge }, {
+        onSuccess: (data) => {
+            const { downloadUrl } = data as { downloadUrl: string };
+            if (!downloadUrl) return;
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+    });
   };
 
   return (
