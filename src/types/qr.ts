@@ -1,3 +1,3 @@
 export interface QRDisplayProps {
-    qrUrl: string;
+  qrUrl: string;
 }

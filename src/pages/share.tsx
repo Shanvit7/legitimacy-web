@@ -311,7 +311,7 @@ const SharePage = () => {
 
         <div className="pt-12 grid md:grid-cols-3 gap-6">
           {[
-            { icon: MapPinCheck, title: "Geographic Access", desc: "Limit access to specific locations" },
+            { icon: MapPinCheck, title: "Geo Fencing", desc: "Limit access to specific locations" },
             { icon: Clock, title: "Auto Expiry", desc: "Time-based access control" },
             { icon: Shield, title: "OTP Verification", desc: "OTP verification will be done for each download" },
           ].map((feature, index) => (
