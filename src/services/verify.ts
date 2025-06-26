@@ -16,7 +16,7 @@ export const verifyPdf = async ({ token }: VerifyRequest) => {
 };
 
 export const verifyOtp = async ({ otp, publicChallenge }: VerifyOtpRequest) => {
-  const { data = {}, isError = false } = (await verifyService.post('/otp', { otp, publicChallenge })) ?? {};
+  const { isError = false, data = {} } = (await verifyService.post('/otp', { otp, publicChallenge }, { responseType: 'blob' })) ?? {};
   if (isError) {
     throw new Error('Failed to verify OTP');
   };

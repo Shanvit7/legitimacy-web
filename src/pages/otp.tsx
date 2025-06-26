@@ -5,17 +5,19 @@ import useVerifyOtp from '@/hooks/use-verify-otp';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/input-otp';
 import { Button } from '@/components/atoms/button';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/atoms/form';
+import { toast } from 'sonner';
 // SCHEMAS
 import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 // UTILS
 import { sha256 } from '@/utils/crypto';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
 // STORES
 import useSessionStore from '@/stores/session';
 
 const OtpPage = () => {
   const { key, clearSession } = useSessionStore() ?? {};
-  const { mutate: verifyOtp, isPending = true } = useVerifyOtp();
+  const { mutate: verifyOtp, isPending = true, isSuccess = false } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
     defaultValues: { otp: '' },
@@ -29,14 +31,20 @@ const OtpPage = () => {
     const publicChallenge = await sha256(key?.toString() ?? '');
     verifyOtp({ otp, publicChallenge }, {
         onSuccess: (data) => {
-            const { downloadUrl } = data as { downloadUrl: string };
-            if (!downloadUrl) return;
+            if (!(data instanceof Blob)) {
+                toast.error('Failed to download PDF, there seems to be an issue with data received');
+                return;
+            };
+            toast.success('PDF download has started, please wait for it to complete');
+            const url = window.URL.createObjectURL(data);
             const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = '';
+            link.href = url;
+            const timestamp = format(new Date(), 'yyyy-MM-dd-HH-mm-ss');
+            link.download = `lyk-unlocked-${timestamp}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
             clearSession();
         },
     });
@@ -94,7 +102,7 @@ const OtpPage = () => {
             <Button
               size="lg"
               type="submit"
-              disabled={otp.length < 6 || isPending}
+              disabled={otp.length < 6 || isPending || isSuccess}
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-5 text-white font-semibold shadow-md shadow-purple-500/30 transition-all duration-300 hover:from-blue-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Verify OTP
