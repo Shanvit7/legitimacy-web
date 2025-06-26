@@ -12,7 +12,7 @@ export const Route = createFileRoute('/otp')({
   beforeLoad: async () => {
     const { key, shareId, setShareId } = useSessionStore.getState() ?? {};
     if (!key || !shareId) throw redirect({ to: '/404' });
-    const publicChallenge = await sha256(key);
+    const publicChallenge = await sha256(key.toString());
     const { isError = true, isSuccess = false }= (await verifySession({ shareId, publicChallenge })) ?? {};
     if (isError) throw redirect({ to: '/404' });
     if (isSuccess) {
