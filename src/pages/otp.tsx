@@ -12,6 +12,8 @@ import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 import { sha256 } from '@/utils/crypto';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
+// CONSTANTS
+import { OTP_LENGTH } from '@/utils/constants';
 // STORES
 import useSessionStore from '@/stores/session';
 
@@ -78,13 +80,13 @@ const OtpPage = () => {
                   <FormLabel className="sr-only">OTP</FormLabel>
                   <FormControl>
                     <InputOTP
-                      maxLength={4}
+                      maxLength={OTP_LENGTH}
                       value={field.value}
                       onChange={field.onChange}
                       className="gap-4"
                     >
                       <InputOTPGroup className="gap-4">
-                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                        {Array.from({ length: OTP_LENGTH }, (_, i) => i).map((i) => (
                           <InputOTPSlot
                             key={i}
                             index={i}
@@ -102,7 +104,7 @@ const OtpPage = () => {
             <Button
               size="lg"
               type="submit"
-              disabled={otp.length < 6 || isPending || isSuccess}
+              disabled={otp.length < OTP_LENGTH || isPending || isSuccess}
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-5 text-white font-semibold shadow-md shadow-purple-500/30 transition-all duration-300 hover:from-blue-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Verify OTP

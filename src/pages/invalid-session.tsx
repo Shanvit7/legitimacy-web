@@ -17,7 +17,7 @@ const InvalidSessionPage = () => (
           </div>
           <h2 className="text-4xl font-bold text-pink-400">Invalid Session</h2>
           <p className="text-base text-slate-300">
-            Your session is no longer valid. Please ensure your are scanning the correct QR code.
+            Your session is no longer valid. Please ensure your are following all the correct steps and scanning the correct QR code.
           </p>
         </div>
       </div>
