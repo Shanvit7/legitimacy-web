@@ -6,6 +6,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/in
 import { Button } from '@/components/atoms/button';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/atoms/form';
 import { toast } from 'sonner';
+import { Block } from '@tanstack/react-router';
 // SCHEMAS
 import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 // UTILS
@@ -52,7 +53,13 @@ const OtpPage = () => {
     });
   };
 
+  const shouldBlock = () => {
+      const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.')
+      return !shouldLeave
+  };
+
   return (
+    <Block shouldBlockFn={shouldBlock}>
     <main className="relative min-h-screen min-w-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-black px-4">
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden">
@@ -81,9 +88,10 @@ const OtpPage = () => {
                   <FormControl>
                     <InputOTP
                       maxLength={OTP_LENGTH}
+                      type="number"
                       value={field.value}
                       onChange={field.onChange}
-                      className="gap-4"
+                      className="gap-4 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     >
                       <InputOTPGroup className="gap-4">
                         {Array.from({ length: OTP_LENGTH }, (_, i) => i).map((i) => (
@@ -113,6 +121,7 @@ const OtpPage = () => {
         </Form>
       </div>
     </main>
+    </Block>
   );
 };
 
