@@ -1,6 +1,7 @@
 // HOOKS
 import { useForm } from 'react-hook-form';
 import useVerifyOtp from '@/hooks/use-verify-otp';
+import { useNavigate } from '@tanstack/react-router';
 // COMPONENTS
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/input-otp';
 import { Button } from '@/components/atoms/button';
@@ -17,9 +18,12 @@ import { format } from 'date-fns';
 import { OTP_LENGTH } from '@/utils/constants';
 // STORES
 import useSessionStore from '@/stores/session';
+// LOGGER
+import logger from '@/utils/logger';
 
 const OtpPage = () => {
   const { key, clearSession } = useSessionStore() ?? {};
+  const navigate = useNavigate();
   const { mutate: verifyOtp, isPending = true, isSuccess = false } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
@@ -50,6 +54,10 @@ const OtpPage = () => {
             window.URL.revokeObjectURL(url);
             clearSession();
         },
+        onError: (error) => {
+          logger.error(error);
+          navigate({ to: '/invalid' });
+        }
     });
   };
 
