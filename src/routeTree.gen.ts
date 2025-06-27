@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as OtpRouteImport } from './routes/otp'
+import { Route as InvalidRouteImport } from './routes/invalid'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const OtpRoute = OtpRouteImport.update({
   path: '/otp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvalidRoute = InvalidRouteImport.update({
+  id: '/invalid',
+  path: '/invalid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const R404Route = R404RouteImport.update({
   id: '/404',
   path: '/404',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
   '/verify': typeof VerifyRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
   '/verify': typeof VerifyRoute
@@ -59,21 +67,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/404' | '/otp' | '/share' | '/verify'
+  fullPaths: '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/404' | '/otp' | '/share' | '/verify'
-  id: '__root__' | '/' | '/404' | '/otp' | '/share' | '/verify'
+  to: '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
+  id: '__root__' | '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
+  InvalidRoute: typeof InvalidRoute
   OtpRoute: typeof OtpRoute
   ShareRoute: typeof ShareRoute
   VerifyRoute: typeof VerifyRoute
@@ -102,6 +112,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OtpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invalid': {
+      id: '/invalid'
+      path: '/invalid'
+      fullPath: '/invalid'
+      preLoaderRoute: typeof InvalidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/404': {
       id: '/404'
       path: '/404'
@@ -122,6 +139,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
+  InvalidRoute: InvalidRoute,
   OtpRoute: OtpRoute,
   ShareRoute: ShareRoute,
   VerifyRoute: VerifyRoute,

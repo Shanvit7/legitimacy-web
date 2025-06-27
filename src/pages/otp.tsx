@@ -5,17 +5,22 @@ import useVerifyOtp from '@/hooks/use-verify-otp';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/input-otp';
 import { Button } from '@/components/atoms/button';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/atoms/form';
+import { toast } from 'sonner';
+import { Block } from '@tanstack/react-router';
 // SCHEMAS
 import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 // UTILS
 import { sha256 } from '@/utils/crypto';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
+// CONSTANTS
+import { OTP_LENGTH } from '@/utils/constants';
 // STORES
 import useSessionStore from '@/stores/session';
 
 const OtpPage = () => {
   const { key, clearSession } = useSessionStore() ?? {};
-  const { mutate: verifyOtp, isPending = true } = useVerifyOtp();
+  const { mutate: verifyOtp, isPending = true, isSuccess = false } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
     defaultValues: { otp: '' },
@@ -29,20 +34,32 @@ const OtpPage = () => {
     const publicChallenge = await sha256(key?.toString() ?? '');
     verifyOtp({ otp, publicChallenge }, {
         onSuccess: (data) => {
-            const { downloadUrl } = data as { downloadUrl: string };
-            if (!downloadUrl) return;
+            if (!(data instanceof Blob)) {
+                toast.error('Failed to download PDF, there seems to be an issue with data received');
+                return;
+            };
+            toast.success('PDF download has started, please wait for it to complete');
+            const url = window.URL.createObjectURL(data);
             const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = '';
+            link.href = url;
+            const timestamp = format(new Date(), 'yyyy-MM-dd-HH-mm-ss');
+            link.download = `lyk-unlocked-${timestamp}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
             clearSession();
         },
     });
   };
 
+  const shouldBlock = () => {
+      const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.')
+      return !shouldLeave
+  };
+
   return (
+    <Block shouldBlockFn={shouldBlock}>
     <main className="relative min-h-screen min-w-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-black px-4">
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden">
@@ -70,13 +87,14 @@ const OtpPage = () => {
                   <FormLabel className="sr-only">OTP</FormLabel>
                   <FormControl>
                     <InputOTP
-                      maxLength={4}
+                      maxLength={OTP_LENGTH}
+                      type="number"
                       value={field.value}
                       onChange={field.onChange}
-                      className="gap-4"
+                      className="gap-4 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     >
                       <InputOTPGroup className="gap-4">
-                        {[0, 1, 2, 3, 4, 5].map((i) => (
+                        {Array.from({ length: OTP_LENGTH }, (_, i) => i).map((i) => (
                           <InputOTPSlot
                             key={i}
                             index={i}
@@ -94,7 +112,7 @@ const OtpPage = () => {
             <Button
               size="lg"
               type="submit"
-              disabled={otp.length < 6 || isPending}
+              disabled={otp.length < OTP_LENGTH || isPending || isSuccess}
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-5 text-white font-semibold shadow-md shadow-purple-500/30 transition-all duration-300 hover:from-blue-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Verify OTP
@@ -103,6 +121,7 @@ const OtpPage = () => {
         </Form>
       </div>
     </main>
+    </Block>
   );
 };
 

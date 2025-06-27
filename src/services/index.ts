@@ -9,6 +9,10 @@ interface FetchState<T> {
   error: Error | null;
 }
 
+interface ApiOptions extends RequestInit {
+  responseType?: 'json' | 'blob' | 'text';
+}
+
 export class ApiService {
   private baseUrl: string = '';
 
@@ -22,7 +26,7 @@ export class ApiService {
     this.baseUrl = url;
   }
 
-  async fetchData<T>(endpoint: string, options?: RequestInit): Promise<FetchState<T>> {
+  async fetchData<T>(endpoint: string, options?: ApiOptions): Promise<FetchState<T>> {
     const state: FetchState<T> = {
       data: null,
       isLoading: true,
@@ -45,7 +49,17 @@ export class ApiService {
       logger.info(`API call to ${endpoint} successful`);
       logger.info(response);
 
-      const data = await response.json();
+      let data;
+      switch (options?.responseType) {
+        case 'blob':
+          data = await response.blob();
+          break;
+        case 'text':
+          data = await response.text();
+          break;
+        default:
+          data = await response.json();
+      }
       logger.info(data);
 
       return {
@@ -72,12 +86,12 @@ export class ApiService {
   }
 
   // Convenience methods for different HTTP methods
-  async get<T>(endpoint: string, options?: RequestInit) {
+  async get<T>(endpoint: string, options?: ApiOptions) {
     logger.info(`API call to ${endpoint} successful`);
     return this.fetchData<T>(endpoint, { ...options, method: 'GET' });
   }
 
-  async post<T>(endpoint: string, body: unknown, options?: RequestInit) {
+  async post<T>(endpoint: string, body: unknown, options?: ApiOptions) {
     // Determine if body should be sent as JSON or form data.
     const isFormBody = body instanceof FormData || body instanceof URLSearchParams;
     const headers = isFormBody
@@ -92,7 +106,7 @@ export class ApiService {
     });
   }
 
-  async put<T>(endpoint: string, body: unknown, options?: RequestInit) {
+  async put<T>(endpoint: string, body: unknown, options?: ApiOptions) {
     return this.fetchData<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -100,7 +114,7 @@ export class ApiService {
     });
   }
 
-  async delete<T>(endpoint: string, options?: RequestInit) {
+  async delete<T>(endpoint: string, options?: ApiOptions) {
     return this.fetchData<T>(endpoint, { ...options, method: 'DELETE' });
   }
 }

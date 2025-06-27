@@ -11,10 +11,10 @@ import { verifySession } from '@/services/verify';
 export const Route = createFileRoute('/otp')({
   beforeLoad: async () => {
     const { key, shareId, setShareId } = useSessionStore.getState() ?? {};
-    if (!key || !shareId) throw redirect({ to: '/404' });
+    if (!key || !shareId) throw redirect({ to: '/invalid' });
     const publicChallenge = await sha256(key.toString());
     const { isError = true, isSuccess = false }= (await verifySession({ shareId, publicChallenge })) ?? {};
-    if (isError) throw redirect({ to: '/404' });
+    if (isError) throw redirect({ to: '/invalid' });
     if (isSuccess) {
       setShareId('');
     }

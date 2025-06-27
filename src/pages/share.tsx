@@ -116,8 +116,8 @@ const SharePage = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl text-slate-100">Share Settings</CardTitle>
                 <Badge variant="secondary" className="bg-slate-700/50 text-slate-300">
-                  <Zap className="h-3 w-3 mr-1" />
-                  New Features
+                  <Zap className="size-4 mr-1" />
+                  New Features Coming Soon
                 </Badge>
               </div>
               <CardDescription className="text-slate-400">

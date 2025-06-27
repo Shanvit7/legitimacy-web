@@ -14,6 +14,7 @@ import NotFoundPage from '@/pages/not-found';
 
 const router = createRouter({ 
   routeTree,
+  scrollRestoration: true,
   defaultNotFoundComponent: NotFoundPage,
 });
 
