@@ -25,7 +25,7 @@ import Footer from "@/components/molecules/footer";
 import QRDisplay from "@/components/molecules/qr-display";
 import { toast } from "sonner";
 // ICONS
-import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode, MapPin, MapPinCheck } from "lucide-react";
+import { Clock, Download, Mail, Monitor, Shield, Zap, QrCode, GlobeLock, EarthLock } from "lucide-react";
 // CONSTANTS
 import { DEVICE_TYPES } from "@/utils/constants";
 // SCHEMAS
@@ -270,8 +270,18 @@ const SharePage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-slate-200 font-semibold flex items-center">
-                          <MapPin className="size-4 mr-2 text-yellow-400" />
+                          <GlobeLock className="size-4 mr-2 text-yellow-400" />
                           Geographic Access Limit
+                          <Tooltip>
+                            <TooltipTrigger className="p-0" asChild>
+                              <div className="ml-1.5 inline-flex items-center justify-center rounded-full border border-slate-600 bg-slate-800/30 size-4">
+                                <span className="text-[10px] text-slate-400">?</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Limit access to specific locations. Attempts to get the PDF outside the specified location ranges will be denied.</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </FormLabel>
                         <FormControl>
                           <div className="bg-slate-800/50 border border-slate-600 rounded-md overflow-hidden">
@@ -311,7 +321,7 @@ const SharePage = () => {
 
         <div className="pt-12 grid md:grid-cols-3 gap-6">
           {[
-            { icon: MapPinCheck, title: "Geo Fencing", desc: "Limit access to specific locations" },
+            { icon: EarthLock, title: "Geo Fencing", desc: "Limit access to specific locations" },
             { icon: Clock, title: "Auto Expiry", desc: "Time-based access control" },
             { icon: Shield, title: "OTP Verification", desc: "OTP verification will be done for each download" },
           ].map((feature, index) => (

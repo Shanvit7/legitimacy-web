@@ -13,11 +13,11 @@ const InvalidSessionPage = () => (
       <div className="flex min-h-screen items-center justify-center text-white">
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
-            <ShieldOff size={64} className="text-pink-500" />
+            <ShieldOff size={72} className="text-red-800 animate-pulse" />
           </div>
-          <h2 className="text-4xl font-bold text-pink-400">Invalid Session</h2>
-          <p className="text-base text-slate-300">
-            Your session is no longer valid. Please ensure your are following all the correct steps and scanning the correct QR code.
+          <h2 className="text-3xl font-bold text-red-600 animate-in fade-in duration-1000">Invalid Session</h2>
+          <p className="text-base text-slate-300 leading-8 animate-in fade-in duration-1000">
+            <strong>Your session isn&apos;t valid</strong>. <br/> Please ensure your are following all the correct steps and scanning the correct QR code.
           </p>
         </div>
       </div>
