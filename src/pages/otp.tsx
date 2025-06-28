@@ -1,5 +1,5 @@
 // HOOKS
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldValues } from 'react-hook-form';
 import useVerifyOtp from '@/hooks/use-verify-otp';
 import { useNavigate } from '@tanstack/react-router';
 // COMPONENTS
@@ -31,6 +31,11 @@ const OtpPage = () => {
     mode: 'onSubmit',
   });
   const { handleSubmit, control, watch } = form ?? {};
+
+  const handleAndValidateOTPChange = (field: FieldValues) => (otp: string) => {
+    const digitsOnly = otp.replace(/\D/g, '');
+    field.onChange(digitsOnly);
+  };
 
   const otp = watch('otp');
 
@@ -96,10 +101,12 @@ const OtpPage = () => {
                   <FormControl>
                     <InputOTP
                       maxLength={OTP_LENGTH}
-                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={field.value}
-                      onChange={field.onChange}
-                      className="gap-4 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      onChange={handleAndValidateOTPChange(field)}
+                      className="gap-4"
+                      autoFocus={true}
                     >
                       <InputOTPGroup className="gap-4">
                         {Array.from({ length: OTP_LENGTH }, (_, i) => i).map((i) => (
