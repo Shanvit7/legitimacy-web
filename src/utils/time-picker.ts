@@ -1,4 +1,5 @@
 import { addHours } from 'date-fns';
+import type { Period, TimePickerType } from '@/types/time';
 
 // Validate input range
 export const isValidHours = (value: number) => value >= 0 && value <= 24;
@@ -11,8 +12,6 @@ export const calculateExpiryDate = (hours: number) => {
 
   return addHours(new Date(), hours);
 };
-
-export type Period = 'AM' | 'PM';
 
 // Regex validators
 export const isValidHour = (value: string) => /^(0[0-9]|1[0-9]|2[0-3])$/.test(value);
