@@ -4,7 +4,9 @@ import { forwardRef, type KeyboardEvent } from "react";
 // COMPONENTS
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
 // UTILS
-import { type Period, display12HourValue, setDateByType } from "@/utils/time-picker";
+import { display12HourValue, setDateByType } from "@/utils/time-picker";
+// TYPES
+import type { Period } from "@/types/time";
  
 export interface PeriodSelectorProps {
     period: Period;
