@@ -47,7 +47,6 @@ export class ApiService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       logger.info(`API call to ${endpoint} successful`);
-      logger.info(response);
 
       let data;
       switch (options?.responseType) {
