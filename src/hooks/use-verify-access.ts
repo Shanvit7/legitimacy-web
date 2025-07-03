@@ -19,7 +19,6 @@ const useVerifyAccess = () => {
         mutationFn: ({ token }: VerifyRequest) => {
             if(isLoading) {
                 toast.warning('We are still getting your location, please wait a moment and try again.');
-                return Promise.reject(new Error('Geolocation is loading...'));
             };
             if(isSuccess) {
                 return verifyPdf({ token, coords });

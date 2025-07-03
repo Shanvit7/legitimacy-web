@@ -5,7 +5,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import type { GeolocationState } from '@/types/location';
 
 const useGeolocationStore = create(
-  subscribeWithSelector<GeolocationState & { fetchGeolocation: () => void }>((set) => {
+  subscribeWithSelector<GeolocationState & { fetchGeolocation: () => void; _retried?: boolean }>((set, get) => {
     const fetchGeolocation = () => {
       if (!navigator.geolocation) {
         set({
@@ -22,6 +22,7 @@ const useGeolocationStore = create(
       }
 
       const onSuccess = (pos: GeolocationPosition) => {
+        if (get().isSuccess) return; // avoid overwriting if already successful
         const { coords, timestamp } = pos;
         set({
           isLoading: false,
@@ -39,20 +40,27 @@ const useGeolocationStore = create(
       };
 
       const onError = (err: GeolocationPositionError) => {
+        if (err.code === err.POSITION_UNAVAILABLE && !get()._retried) {
+          set({ _retried: true });
+          setTimeout(fetchGeolocation, 2000); // retry once after short delay
+          return;
+        }
+
         set({
           isLoading: false,
           error: err,
         });
       };
 
+      set({ isLoading: true });
       navigator.geolocation.getCurrentPosition(onSuccess, onError, {
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 10000,
         maximumAge: 0,
       });
     };
 
-    // Initialize geolocation data when the store is accessed
+    // Call immediately
     fetchGeolocation();
 
     return {
@@ -67,9 +75,10 @@ const useGeolocationStore = create(
       longitude: undefined,
       speed: undefined,
       timestamp: undefined,
+      _retried: false,
       fetchGeolocation,
     };
   })
 );
 
-export default useGeolocationStore; 
+export default useGeolocationStore;

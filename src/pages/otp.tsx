@@ -60,15 +60,18 @@ const OtpPage = () => {
             clearSession();
         },
         onError: (error) => {
-          logger.error(error);
+          logger.error('Failed to verify OTP', error);
           navigate({ to: '/invalid' });
-        }
+        },
     });
   };
 
   const shouldBlock = () => {
-      const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.')
-      return !shouldLeave
+      const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.');
+      if(shouldLeave) {
+        clearSession();
+      };
+      return !shouldLeave;
   };
 
   return (
