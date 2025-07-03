@@ -1,7 +1,6 @@
 // HOOKS
 import { useForm, type FieldValues } from 'react-hook-form';
 import useVerifyOtp from '@/hooks/use-verify-otp';
-import { useNavigate } from '@tanstack/react-router';
 // COMPONENTS
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/input-otp';
 import { Button } from '@/components/atoms/button';
@@ -23,7 +22,6 @@ import logger from '@/utils/logger';
 
 const OtpPage = () => {
   const { key, clearSession } = useSessionStore() ?? {};
-  const navigate = useNavigate();
   const { mutate: verifyOtp, isPending = true, isSuccess = false } = useVerifyOtp();
   const form = useForm<OtpFormSchema>({
     resolver: zodResolver(otpSchema),
@@ -61,7 +59,7 @@ const OtpPage = () => {
         },
         onError: (error) => {
           logger.error(error);
-          navigate({ to: '/invalid' });
+          toast.error('Invalid OTP, expired QR code, or too many attempts. Please try again after 5 minutes.');
         }
     });
   };
