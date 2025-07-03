@@ -2,6 +2,9 @@
 import { useForm, type FieldValues } from 'react-hook-form';
 import useVerifyOtp from '@/hooks/use-verify-otp';
 import { useNavigate } from '@tanstack/react-router';
+import { useMemo, useState } from 'react';
+// STORES
+import useGeolocationStore from '@/stores/geolocation';
 // COMPONENTS
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/molecules/input-otp';
 import { Button } from '@/components/atoms/button';
@@ -13,6 +16,7 @@ import { otpSchema, type OtpFormSchema } from '@/schemas/otp';
 // UTILS
 import { sha256 } from '@/utils/crypto';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { VerifyError } from '@/utils/error';
 import { format } from 'date-fns';
 // CONSTANTS
 import { OTP_LENGTH } from '@/utils/constants';
@@ -20,8 +24,13 @@ import { OTP_LENGTH } from '@/utils/constants';
 import useSessionStore from '@/stores/session';
 // LOGGER
 import logger from '@/utils/logger';
+// TYPES
+import type { Coords } from '@/types/location';
 
 const OtpPage = () => {
+  const [allowLeave, setAllowLeave] = useState<boolean>(false);
+  const { latitude, longitude, altitude } = useGeolocationStore() ?? {};
+  const coords = useMemo(() => ({ latitude, longitude, altitude }) as Coords, [latitude, longitude, altitude]);
   const { key, clearSession } = useSessionStore() ?? {};
   const navigate = useNavigate();
   const { mutate: verifyOtp, isPending = true, isSuccess = false } = useVerifyOtp();
@@ -32,6 +41,7 @@ const OtpPage = () => {
   });
   const { handleSubmit, control, watch } = form ?? {};
 
+
   const handleAndValidateOTPChange = (field: FieldValues) => (otp: string) => {
     const digitsOnly = otp.replace(/\D/g, '');
     field.onChange(digitsOnly);
@@ -41,7 +51,7 @@ const OtpPage = () => {
 
   const onSubmit = async ({ otp }: OtpFormSchema) => {
     const publicChallenge = await sha256(key?.toString() ?? '');
-    verifyOtp({ otp, publicChallenge }, {
+    verifyOtp({ otp, publicChallenge, coords }, {
         onSuccess: (data) => {
             if (!(data instanceof Blob)) {
                 toast.error('Failed to download PDF, there seems to be an issue with data received');
@@ -61,12 +71,38 @@ const OtpPage = () => {
         },
         onError: (error) => {
           logger.error('Failed to verify OTP', error);
-          navigate({ to: '/invalid' });
+          if (error instanceof VerifyError) {
+            const code = error.statusCode;
+            switch(code){
+              case 500:
+                toast.error('Failed to verify OTP, there seems to be an issue with data received');
+                break;
+              case 400:
+                toast.warning('OTP is invalid. Please be sure you have entered the correct OTP.');
+                break;
+              case 401:
+                setAllowLeave(true);
+                navigate({ to: '/invalid' });
+                break;
+              case 429:
+                setAllowLeave(true);
+                toast.error('You have exceeded the maximum number of attempts. Please try again later.');
+                navigate({ to: '/invalid' });
+                break;
+              default:
+                toast.error('Failed to verify OTP, there seems to be an issue with data received');
+                break;
+            }
+          };
         },
     });
   };
 
   const shouldBlock = () => {
+      if(allowLeave) {
+        clearSession();
+        return false;
+      };
       const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.');
       if(shouldLeave) {
         clearSession();
@@ -76,7 +112,7 @@ const OtpPage = () => {
 
   return (
     <Block shouldBlockFn={shouldBlock}>
-    <main className="relative min-h-screen min-w-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-black px-4">
+    <main className="relative min-h-screen h-[120vh] min-w-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-black px-4">
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />

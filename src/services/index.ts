@@ -7,6 +7,7 @@ interface FetchState<T> {
   isError: boolean;
   isSuccess: boolean;
   error: Error | null;
+  statusCode: number;
 }
 
 interface ApiOptions extends RequestInit {
@@ -33,6 +34,7 @@ export class ApiService {
       isError: false,
       isSuccess: false,
       error: null,
+      statusCode: 0,
     };
 
     try {
@@ -43,12 +45,36 @@ export class ApiService {
         },
       });
 
+      const statusCode = response.status;
+
+      let data: unknown = null;
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+          switch (options?.responseType) {
+            case 'blob':
+              data = await response.blob();
+              break;
+            case 'text':
+              data = await response.text();
+              break;
+            default:
+              data = await response.json();
+          }
+        } catch {
+          data = null;
+        }
+
+        const error = Object.assign(new Error(`HTTP error! status: ${statusCode}`), {
+          statusCode,
+          responseData: data,
+        });
+
+        throw error;
       }
+
       logger.info(`API call to ${endpoint} successful`);
 
-      let data;
       switch (options?.responseType) {
         case 'blob':
           data = await response.blob();
@@ -59,39 +85,37 @@ export class ApiService {
         default:
           data = await response.json();
       }
+
       logger.info(data);
 
       return {
         ...state,
-        data,
+        data: data as T,
         isLoading: false,
         isSuccess: true,
+        statusCode,
       };
-    } catch (error) {
-      // If AbortError, keep the original error
+    } catch (error: unknown) {
       logger.error(`API call to ${endpoint} failed`);
       logger.error('[ERROR LOG]', error);
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw error;
-      }
 
       return {
         ...state,
         isLoading: false,
         isError: true,
         error: error instanceof Error ? error : new Error('An error occurred'),
+        data: error instanceof Error ? (error as unknown as { responseData: unknown }).responseData as T : null,
+        statusCode: error instanceof Error ? (error as unknown as { statusCode: number }).statusCode : 500,
       };
     }
   }
 
-  // Convenience methods for different HTTP methods
   async get<T>(endpoint: string, options?: ApiOptions) {
     logger.info(`API call to ${endpoint} successful`);
     return this.fetchData<T>(endpoint, { ...options, method: 'GET' });
   }
 
   async post<T>(endpoint: string, body: unknown, options?: ApiOptions) {
-    // Determine if body should be sent as JSON or form data.
     const isFormBody = body instanceof FormData || body instanceof URLSearchParams;
     const headers = isFormBody
       ? { ...options?.headers }
