@@ -65,6 +65,7 @@ const OtpPage = () => {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
+            navigate({ to: '/success', ignoreBlocker: true });
             clearSession();
         },
         onError: (error) => {

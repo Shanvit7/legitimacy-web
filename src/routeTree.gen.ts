@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as SuccessRouteImport } from './routes/success'
 import { Route as ShareRouteImport } from './routes/share'
 import { Route as OtpRouteImport } from './routes/otp'
 import { Route as InvalidRouteImport } from './routes/invalid'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuccessRoute = SuccessRouteImport.update({
+  id: '/success',
+  path: '/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShareRoute = ShareRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
+  '/success': typeof SuccessRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
+  '/success': typeof SuccessRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,30 @@ export interface FileRoutesById {
   '/invalid': typeof InvalidRoute
   '/otp': typeof OtpRoute
   '/share': typeof ShareRoute
+  '/success': typeof SuccessRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
+  fullPaths:
+    | '/'
+    | '/404'
+    | '/invalid'
+    | '/otp'
+    | '/share'
+    | '/success'
+    | '/verify'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
-  id: '__root__' | '/' | '/404' | '/invalid' | '/otp' | '/share' | '/verify'
+  to: '/' | '/404' | '/invalid' | '/otp' | '/share' | '/success' | '/verify'
+  id:
+    | '__root__'
+    | '/'
+    | '/404'
+    | '/invalid'
+    | '/otp'
+    | '/share'
+    | '/success'
+    | '/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +110,7 @@ export interface RootRouteChildren {
   InvalidRoute: typeof InvalidRoute
   OtpRoute: typeof OtpRoute
   ShareRoute: typeof ShareRoute
+  SuccessRoute: typeof SuccessRoute
   VerifyRoute: typeof VerifyRoute
 }
 
@@ -96,6 +121,13 @@ declare module '@tanstack/react-router' {
       path: '/verify'
       fullPath: '/verify'
       preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/success': {
+      id: '/success'
+      path: '/success'
+      fullPath: '/success'
+      preLoaderRoute: typeof SuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/share': {
@@ -142,6 +174,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvalidRoute: InvalidRoute,
   OtpRoute: OtpRoute,
   ShareRoute: ShareRoute,
+  SuccessRoute: SuccessRoute,
   VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
