@@ -2,7 +2,7 @@
 import { useForm, type FieldValues } from 'react-hook-form';
 import useVerifyOtp from '@/hooks/use-verify-otp';
 import { useNavigate } from '@tanstack/react-router';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 // STORES
 import useGeolocationStore from '@/stores/geolocation';
 // COMPONENTS
@@ -28,7 +28,6 @@ import logger from '@/utils/logger';
 import type { Coords } from '@/types/location';
 
 const OtpPage = () => {
-  const [allowLeave, setAllowLeave] = useState<boolean>(false);
   const { latitude, longitude, altitude } = useGeolocationStore() ?? {};
   const coords = useMemo(() => ({ latitude, longitude, altitude }) as Coords, [latitude, longitude, altitude]);
   const { key, clearSession } = useSessionStore() ?? {};
@@ -41,7 +40,6 @@ const OtpPage = () => {
   });
   const { handleSubmit, control, watch } = form ?? {};
 
-
   const handleAndValidateOTPChange = (field: FieldValues) => (otp: string) => {
     const digitsOnly = otp.replace(/\D/g, '');
     field.onChange(digitsOnly);
@@ -53,7 +51,6 @@ const OtpPage = () => {
     const publicChallenge = await sha256(key?.toString() ?? '');
     verifyOtp({ otp, publicChallenge, coords }, {
         onSuccess: (data) => {
-            setAllowLeave(true);
             if (!(data instanceof Blob)) {
                 toast.error('Failed to download PDF, there seems to be an issue with data received');
                 return;
@@ -82,13 +79,13 @@ const OtpPage = () => {
                 toast.warning('OTP is invalid. Please be sure you have entered the correct OTP.');
                 break;
               case 401:
-                setAllowLeave(true);
-                navigate({ to: '/invalid' });
+                navigate({ to: '/invalid', ignoreBlocker: true });
+                clearSession();
                 break;
               case 429:
-                setAllowLeave(true);
                 toast.error('You have exceeded the maximum number of attempts. Please try again later.');
-                navigate({ to: '/invalid' });
+                clearSession();
+                navigate({ to: '/invalid', ignoreBlocker: true });
                 break;
               default:
                 toast.error('Failed to verify OTP, there seems to be an issue with data received');
@@ -100,10 +97,6 @@ const OtpPage = () => {
   };
 
   const shouldBlock = () => {
-      if(allowLeave) {
-        clearSession();
-        return false;
-      };
       const shouldLeave = confirm('Are you sure you want to leave ?. Please wait for the PDF to download after you have verified the OTP else you will have to rescan the QR code.');
       if(shouldLeave) {
         clearSession();
