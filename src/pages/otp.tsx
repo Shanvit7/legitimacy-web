@@ -53,6 +53,7 @@ const OtpPage = () => {
     const publicChallenge = await sha256(key?.toString() ?? '');
     verifyOtp({ otp, publicChallenge, coords }, {
         onSuccess: (data) => {
+            setAllowLeave(true);
             if (!(data instanceof Blob)) {
                 toast.error('Failed to download PDF, there seems to be an issue with data received');
                 return;
