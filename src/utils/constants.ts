@@ -5,3 +5,5 @@ export const MAP_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const BASE_API_URL = import.meta.env.VITE_API_URL;
 export const PDF_API_URL = `${BASE_API_URL}/api/pdf`;
 export const VERIFY_API_URL = `${BASE_API_URL}/api/verify`;
+// UI 
+export const OTP_LENGTH = 6;

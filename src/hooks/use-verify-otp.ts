@@ -4,10 +4,12 @@ import { useMutation } from '@tanstack/react-query';
 import { verifyOtp } from '@/services/verify';
 // SCHEMAS
 import type { VerifyOtpRequest } from '@/types/verify';
+// TYPES
+import type { Coords } from '@/types/location';
 
 const useVerifyOtp = () => {
     return useMutation({
-        mutationFn: ({ otp, publicChallenge }: VerifyOtpRequest) => verifyOtp({ otp, publicChallenge }),
+        mutationFn: ({ otp, publicChallenge, coords }: VerifyOtpRequest & { coords: Coords }) => verifyOtp({ otp, publicChallenge, coords }),
     });
 };
 

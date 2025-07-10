@@ -24,11 +24,13 @@ const Topbar = () => (
     </div>
     <div className="flex items-center space-x-4">
       <Button
-        variant="ghost"
         size="sm"
-        className="text-slate-400 transition-all duration-300 hover:bg-slate-800/50 hover:text-white"
+        className="p-5 text-slate-400 transition-all duration-300 hover:bg-slate-800/50 hover:text-white"
+        asChild
       >
-        How it works
+        <Link to="/404">
+          How it works
+        </Link>
       </Button>
       <Button
         size="sm"

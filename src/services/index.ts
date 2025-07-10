@@ -7,6 +7,11 @@ interface FetchState<T> {
   isError: boolean;
   isSuccess: boolean;
   error: Error | null;
+  statusCode: number;
+}
+
+interface ApiOptions extends RequestInit {
+  responseType?: 'json' | 'blob' | 'text';
 }
 
 export class ApiService {
@@ -22,13 +27,14 @@ export class ApiService {
     this.baseUrl = url;
   }
 
-  async fetchData<T>(endpoint: string, options?: RequestInit): Promise<FetchState<T>> {
+  async fetchData<T>(endpoint: string, options?: ApiOptions): Promise<FetchState<T>> {
     const state: FetchState<T> = {
       data: null,
       isLoading: true,
       isError: false,
       isSuccess: false,
       error: null,
+      statusCode: 0,
     };
 
     try {
@@ -39,46 +45,77 @@ export class ApiService {
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      logger.info(`API call to ${endpoint} successful`);
-      logger.info(response);
+      const statusCode = response.status;
 
-      const data = await response.json();
+      let data: unknown = null;
+
+      if (!response.ok) {
+        try {
+          switch (options?.responseType) {
+            case 'blob':
+              data = await response.blob();
+              break;
+            case 'text':
+              data = await response.text();
+              break;
+            default:
+              data = await response.json();
+          }
+        } catch {
+          data = null;
+        }
+
+        const error = Object.assign(new Error(`HTTP error! status: ${statusCode}`), {
+          statusCode,
+          responseData: data,
+        });
+
+        throw error;
+      }
+
+      logger.info(`API call to ${endpoint} successful`);
+
+      switch (options?.responseType) {
+        case 'blob':
+          data = await response.blob();
+          break;
+        case 'text':
+          data = await response.text();
+          break;
+        default:
+          data = await response.json();
+      }
+
       logger.info(data);
 
       return {
         ...state,
-        data,
+        data: data as T,
         isLoading: false,
         isSuccess: true,
+        statusCode,
       };
-    } catch (error) {
-      // If AbortError, keep the original error
+    } catch (error: unknown) {
       logger.error(`API call to ${endpoint} failed`);
       logger.error('[ERROR LOG]', error);
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw error;
-      }
 
       return {
         ...state,
         isLoading: false,
         isError: true,
         error: error instanceof Error ? error : new Error('An error occurred'),
+        data: error instanceof Error ? (error as unknown as { responseData: unknown }).responseData as T : null,
+        statusCode: error instanceof Error ? (error as unknown as { statusCode: number }).statusCode : 500,
       };
     }
   }
 
-  // Convenience methods for different HTTP methods
-  async get<T>(endpoint: string, options?: RequestInit) {
+  async get<T>(endpoint: string, options?: ApiOptions) {
     logger.info(`API call to ${endpoint} successful`);
     return this.fetchData<T>(endpoint, { ...options, method: 'GET' });
   }
 
-  async post<T>(endpoint: string, body: unknown, options?: RequestInit) {
-    // Determine if body should be sent as JSON or form data.
+  async post<T>(endpoint: string, body: unknown, options?: ApiOptions) {
     const isFormBody = body instanceof FormData || body instanceof URLSearchParams;
     const headers = isFormBody
       ? { ...options?.headers }
@@ -92,7 +129,7 @@ export class ApiService {
     });
   }
 
-  async put<T>(endpoint: string, body: unknown, options?: RequestInit) {
+  async put<T>(endpoint: string, body: unknown, options?: ApiOptions) {
     return this.fetchData<T>(endpoint, {
       ...options,
       method: 'PUT',
@@ -100,7 +137,7 @@ export class ApiService {
     });
   }
 
-  async delete<T>(endpoint: string, options?: RequestInit) {
+  async delete<T>(endpoint: string, options?: ApiOptions) {
     return this.fetchData<T>(endpoint, { ...options, method: 'DELETE' });
   }
 }

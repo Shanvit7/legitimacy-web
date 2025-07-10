@@ -5,7 +5,7 @@ import Footer from '@/components/molecules/footer';
 import Topbar from '@/components/molecules/topbar';
 import { Link } from '@tanstack/react-router';
 // ICONS
-import { ArrowRight, Link as LinkIcon, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Shield, Zap, SmilePlus } from 'lucide-react';
 
 const LandingPage = () => (
   <main className="relative min-h-screen min-w-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-black">
@@ -49,7 +49,7 @@ const LandingPage = () => (
       <div className="grid gap-8 md:grid-cols-3">
         <FeatureCard icon={<Zap />} title="Instant Upload" description="Drag, drop, done. Your PDF is secure and ready to share" />
         <FeatureCard icon={<Shield />} title="Secure Share" description="You set the rules, we handle the rest" />
-        <FeatureCard icon={<LinkIcon />} title="Analytics" description="See who, when and where of your PDF" />
+        <FeatureCard icon={<SmilePlus />} title="Easy to use" description="Leave the heavy lifting to us" />
       </div>
     </section>
 
@@ -59,7 +59,7 @@ const LandingPage = () => (
         <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-500/20 to-purple-600/20 blur-xl"></div>
         <div className="relative rounded-3xl border border-slate-700/50 bg-gradient-to-r from-slate-900/90 to-slate-800/90 p-12 backdrop-blur-sm">
           <h2 className="pb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-4xl font-bold text-transparent md:text-3xl">
-           Your work deserves protection—keep it safe from threats.
+           Your data deserves protection—keep it safe from threats.
           </h2>
           <p className="mb-8 text-lg text-slate-300">Join the privacy-first generation</p>
           <Button

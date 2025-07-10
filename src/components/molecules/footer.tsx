@@ -1,5 +1,6 @@
 // COMPONENTS
 import { Button } from '@/components/atoms/button';
+import { Link } from '@tanstack/react-router';
 // ICONS
 import { FileCheck, Lock, Shield } from 'lucide-react';
 
@@ -17,15 +18,18 @@ const Footer = () => (
         </div>
       </div>
       <div className="flex items-center space-x-8 text-sm text-slate-500">
-        <Button className="flex items-center space-x-1 transition-colors duration-300 hover:text-slate-300">
-          <Shield className="h-4 w-4" />
-          <span>Security</span>
+        <Button className="flex items-center space-x-1 transition-colors duration-300 hover:text-slate-300" asChild>
+          <Link to="/404">
+            <Shield className="size-4" />
+            <span>Security</span>
+          </Link>
         </Button>
-        <Button className="flex items-center space-x-1 transition-colors duration-300 hover:text-slate-300">
-          <Lock className="h-4 w-4" />
-          <span>Privacy</span>
-        </Button>
-        <Button className="transition-colors duration-300 hover:text-slate-300">API</Button>
+          <Button className="flex items-center space-x-1 transition-colors duration-300 hover:text-slate-300" asChild>
+            <Link to="/404">
+              <Lock className="size-4" />
+              <span>Privacy</span>
+            </Link>
+          </Button>
       </div>
     </div>
   </footer>
