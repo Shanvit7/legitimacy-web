@@ -60,7 +60,7 @@ const OtpPage = () => {
             const link = document.createElement('a');
             link.href = url;
             const timestamp = format(new Date(), 'yyyy-MM-dd-HH-mm-ss');
-            link.download = `lyk-unlocked-${timestamp}.pdf`;
+            link.download = `legitimacy-unlocked-${timestamp}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
