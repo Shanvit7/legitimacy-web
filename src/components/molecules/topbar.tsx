@@ -13,7 +13,7 @@ const Topbar = () => (
       <div>
         <Link to="/" className="py-4">
         <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-2xl font-bold text-transparent">
-          Lyk <span className="text-xs text-slate-200">(beta)</span>
+          Legitimacy <span className="text-xs text-slate-200">(beta)</span>
         </span>
         </Link>
         <div className="flex items-center space-x-1 text-xs text-slate-500">

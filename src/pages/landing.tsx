@@ -43,7 +43,7 @@ const LandingPage = () => (
 
     <section className="relative z-10 mx-auto max-w-6xl px-6 py-12">
       <div className="mb-16 text-center">
-        <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">Why choose Lyk?</h2>
+        <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">Why choose Legitimacy?</h2>
         <p className="text-lg text-slate-400">Features that just work</p>
       </div>
       <div className="grid gap-8 md:grid-cols-3">
