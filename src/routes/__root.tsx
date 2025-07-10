@@ -3,15 +3,18 @@ import {
   createRootRoute,
   HeadContent,
   Scripts,
+  Outlet,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 // QUERY CLIENT
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from '@/lib/query-client';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// TYPES
 import type { ReactNode } from 'react';
 // COMPONENTS
 import { Toaster } from "@/components/atoms/sonner";
+// STYLES
 import appCss from '@/index.css?url';
 
 const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
@@ -26,10 +29,10 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
     </html>
 );
 
-const RootComponent = ({ children }: Readonly<{ children: ReactNode }>) => (
+const RootComponent = () => (
   <RootDocument>
     <QueryClientProvider client={queryClient}>
-      {children}
+      <Outlet />
       <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
       <TanStackRouterDevtools />
