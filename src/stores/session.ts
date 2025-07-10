@@ -6,8 +6,8 @@ import type { SessionState } from '@/types/crypto';
 const useSessionStore = create<SessionState>((set) => ({
   key: null,
   shareId: null,
-  setKey: (key) => set({ key }),
-  setShareId: (shareId) => set({ shareId }),
+  setKey: (key: CryptoKey) => set({ key }),
+  setShareId: (shareId: string) => set({ shareId }),
   clearSession: () => set({ key: null, shareId: null }),
 }));
 
