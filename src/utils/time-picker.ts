@@ -1,4 +1,6 @@
 import { addHours } from 'date-fns';
+// TYPES
+import type { TimePickerType } from '@/types/time';
 
 // Validate input range
 export const isValidHours = (value: number) => value >= 0 && value <= 24;
@@ -94,7 +96,12 @@ export const set12Hours = (date: Date, value: string, period: Period) => {
   return date;
 };
 
-export const setDateByType = (date: Date, value: string, type: TimePickerType, period?: Period) => {
+export const setDateByType = (
+  date: Date,
+  value: string,
+  type: TimePickerType,
+  period?: Period
+) => {
   switch (type) {
     case 'minutes':
       return setMinutes(date, value);

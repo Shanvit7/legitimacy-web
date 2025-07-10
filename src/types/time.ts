@@ -1,0 +1,1 @@
+export type TimePickerType = 'minutes' | 'seconds' | 'hours' | '12hours';

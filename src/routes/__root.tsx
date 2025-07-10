@@ -3,7 +3,6 @@ import {
   createRootRoute,
   HeadContent,
   Scripts,
-  Outlet,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 // QUERY CLIENT
@@ -13,6 +12,7 @@ import { queryClient } from '@/lib/query-client';
 import type { ReactNode } from 'react';
 // COMPONENTS
 import { Toaster } from "@/components/atoms/sonner";
+import appCss from '@/index.css?url';
 
 const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
     <html>
@@ -26,10 +26,10 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
     </html>
 );
 
-const RootComponent = () => (
+const RootComponent = ({ children }: Readonly<{ children: ReactNode }>) => (
   <RootDocument>
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {children}
       <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
       <TanStackRouterDevtools />
@@ -51,6 +51,9 @@ export const Route = createRootRoute({
         title: 'Lyk - Secure PDF Sharing (Beta)',
       },
     ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+    ],
   }),
-  component: RootComponent,
+  shellComponent: RootComponent,
 });
