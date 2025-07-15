@@ -9,4 +9,5 @@ import { verifySchema } from '@/schemas/verify';
 export const Route = createFileRoute('/verify')({
   component: VerifyPage,
   validateSearch: zodValidator(verifySchema),
+  ssr: false,
 });
