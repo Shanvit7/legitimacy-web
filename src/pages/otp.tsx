@@ -56,7 +56,7 @@ const OtpPage = () => {
                 return;
             };
             toast.success('PDF download has started, please wait for it to complete');
-            const url = window.URL.createObjectURL(data);
+            const url = window?.URL?.createObjectURL(data);
             const link = document.createElement('a');
             link.href = url;
             const timestamp = format(new Date(), 'yyyy-MM-dd-HH-mm-ss');
@@ -64,7 +64,7 @@ const OtpPage = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            window?.URL?.revokeObjectURL(url);
             navigate({ to: '/success', ignoreBlocker: true });
             clearSession();
         },

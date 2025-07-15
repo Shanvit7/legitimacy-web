@@ -6,5 +6,5 @@ export class VerifyError extends Error {
       this.name = 'VerifyError';
       this.statusCode = statusCode;
     }
-}
+};
   

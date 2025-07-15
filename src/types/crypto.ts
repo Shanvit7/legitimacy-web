@@ -4,4 +4,4 @@ export interface SessionState {
   setKey: (key: CryptoKey) => void;
   setShareId: (shareId: string) => void;
   clearSession: () => void;
-};
+}

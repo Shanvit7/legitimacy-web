@@ -1,13 +1,17 @@
+// CORE
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-
 // TYPES
 import type { GeolocationState } from '@/types/location';
 
 const useGeolocationStore = create(
   subscribeWithSelector<GeolocationState & { fetchGeolocation: () => void; _retried?: boolean }>((set, get) => {
     const fetchGeolocation = () => {
-      if (!navigator.geolocation) {
+      if (typeof navigator === 'undefined' || !navigator?.geolocation) {
+        set({ isLoading: true });
+        return;
+      };
+      if (!navigator?.geolocation) {
         set({
           isLoading: false,
           error: {
@@ -53,7 +57,7 @@ const useGeolocationStore = create(
       };
 
       set({ isLoading: true });
-      navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      navigator?.geolocation?.getCurrentPosition(onSuccess, onError, {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,

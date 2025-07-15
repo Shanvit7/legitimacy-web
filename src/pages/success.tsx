@@ -32,4 +32,4 @@ const SuccessfullyDownloaded = () => (
     </main>
 );
 
-export default SuccessfullyDownloaded;  
+export default SuccessfullyDownloaded;

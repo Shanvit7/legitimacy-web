@@ -33,4 +33,5 @@ export const Route = createFileRoute('/otp')({
     }
   },
   component: OtpPage,
+  ssr: false,
 });
