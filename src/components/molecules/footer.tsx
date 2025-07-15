@@ -13,7 +13,7 @@ const Footer = () => (
           <FileCheck className="h-5 w-5 text-white" />
         </div>
         <div>
-          <span className="font-medium text-slate-300">Lyk</span>
+          <span className="font-medium text-slate-300">Legitimacy</span>
           <div className="text-xs text-slate-500">Secure PDF sharing for everyone</div>
         </div>
       </div>

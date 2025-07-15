@@ -51,7 +51,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Lyk - Secure PDF Sharing (Beta)',
+        title: 'Legitimacy - Secure PDF Sharing (Beta)',
       },
     ],
     links: [

@@ -11,7 +11,7 @@ const QRDisplay = ({ qrUrl }: QRDisplayProps) => {
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = qrUrl;
-    link.download = `lyk-qr-code-${Date.now()}.png`;
+    link.download = `legitimacy-qr-code-${Date.now()}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
