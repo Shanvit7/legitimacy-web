@@ -33,7 +33,7 @@ This is a Proof of Concept (POC) project that allows users to upload PDFs and se
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Shanvit7/legitimacy-web
    cd legitimacy-web
    ```
 
