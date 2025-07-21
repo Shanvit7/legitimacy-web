@@ -1,54 +1,56 @@
-# React + TypeScript + Vite
+# Legitimacy Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a Proof of Concept (POC) project that allows users to upload PDFs and securely share them with others using QR code. Geolocation, OTP verification, and Ephemeral Session Key (ESK) implementation are used as security constraints. The project is built using TanStack Start for modern web application development.
 
-Currently, two official plugins are available:
+## Technologies Used
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React**: A JavaScript library for building user interfaces.
+- **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
+- **Vite**: A build tool that provides a fast development environment.
+- **TanStack Start**: A framework for building modern web applications.
+- **TanStack Router**: A powerful routing library for React applications.
+- **Leaflet**: An open-source JavaScript library for mobile-friendly interactive maps.
+- **Zod**: A TypeScript-first schema declaration and validation library.
 
-## Expanding the ESLint configuration
+## Workflow and Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **PDF Upload**:
+   - Users can upload PDF files to the platform.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2. **Geo Fencing**:
+   - The platform uses geofencing to restrict access to the PDF based on the recipients location.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. **OTP Verification**:
+   - An OTP is sent to the recipient's email to verify their identity before accessing the PDF.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. **ESK (Ephemeral Session Key) Implementation**:
+   - Ephemeral Session Keys are used to ensure secure sessions during the PDF sharing process.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+5. **QR Code Sharing**:
+   - A QR code is generated for the uploaded PDF, which can be shared with others to provide access.
+
+## Setup Instructions
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd legitimacy-web
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   pnpm dev
+   ```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
